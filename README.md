@@ -1,5 +1,6 @@
 Crie um banco de dados chamado post. 
 Renomeie o arquivo .env.example e configure a conexão com o banco que você criou.
+Execute o comando: composer install
 Caso necessário, rode o comando: php artisan key:generate
 Rode o comando: php artisan migrate
 Rode o comando: php artisan serve
