@@ -5,6 +5,7 @@ Caso necessário, rode o comando: php artisan key:generate
 Rode o comando: php artisan migrate
 Rode o comando: php artisan serve
 Após esses passos, o servidor estará disponível na url http://127.0.0.1:8000 
+Para rodar as filas, execute o comando: php artisan queue:work
 
 Você poderá testar as apis direto pelo link abaixo, além de poder utilizar algum programa para testa-las, como por exemplo o Postman.
 Api de documentação do projeto: http://127.0.0.1:8000/api/documentation
