@@ -14,5 +14,6 @@ Alguns detalhes do projeto:
 - Foi utilizado formRequest para fazer as validações dos inputs;
 - Foi implementado um método observer nativo do laravel para observar a criação de posts;
 - O projeto utiliza autenticação jwt.
+- Foi criado uma fila, mas, não a utilizei.
 
 Para qualquer dúvida, entre em contato pelo email leandro.p.alexandre@gmail.com
