@@ -73,11 +73,12 @@ class LikeController extends Controller
      */
     public function store(StoreLikeRequest $request)
     {
-        $like = Like::create([
-            "post_id"      => $request->post_id,
-            "user_id"      => auth()->user()->id,
-            "like"         => $request->like
-        ]);
+        $like = LikeJob::dispatch(
+            $request->like,
+            intval($request->post_id),
+            intval(auth()->user()->id),
+            'create'
+        );
 
         return response()->json([
             "status"    => 200,
@@ -199,7 +200,12 @@ class LikeController extends Controller
      */
     public function update(UpdateLikeRequest $request)
     {
-        $like = LikeJob::dispatch($request);
+        LikeJob::dispatch(
+            $request->like,
+            intval($request->post_id),
+            intval(auth()->user()->id),
+            'update'
+        );
 
         return response()->json([
             "status"    => 200,

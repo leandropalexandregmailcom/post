@@ -74,11 +74,11 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request)
     {
-        $comment = Comment::create([
-            "description"  => $request->description,
-            "post_id"      => $request->post_id,
-            "user_id"      => auth()->user()->id
-        ]);
+        $comment = CommentJob::dispatch($request->description,
+            intval($request->post_id),
+            intval(auth()->user()->id),
+            'create'
+        );
 
         return response()->json([
             "status"    => 200,
@@ -200,13 +200,12 @@ class CommentController extends Controller
      */
     public function update(UpdateCommentRequest $request)
     {
-        $comment = Comment::where([
-                'user_id' => auth()->user()->id,
-                'post_id' => $request->post_id,
-                'id' => $request->id
-            ])->update([
-                "description"  => $request->description,
-            ]);
+        CommentJob::dispatch(
+            $request->description,
+            intval($request->post_id),
+            intval(auth()->user()->id),
+            'update'
+        );
 
         return response()->json([
             "status"    => 200,

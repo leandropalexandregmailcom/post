@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Like;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Bus\Queueable;
@@ -15,14 +16,22 @@ class LikeJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    private int $id;
+    private string $like;
+    private int $post_id;
+    private int $user_id;
+    private string $action;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Request $request)
+    public function __construct(string $like, int $post_id, int $user_id, string $action)
     {
-        $this->$request = $request;
+        $this->like = $like;
+        $this->post_id = $post_id;
+        $this->user_id = $user_id;
+        $this->action = $action;
     }
 
     /**
@@ -32,10 +41,22 @@ class LikeJob implements ShouldQueue
      */
     public function handle()
     {
-        $like = Post::where(["user_id" => auth()->user()->id, "id" => $this->request->post_id])->like()->create([
-            "like"         => $this->request->like,
-            "post_id"      => $this->request->post_id,
-            "user_id"      => auth()->user()->id
+        return $this->action == "create" ? $this->create() : $this->update();
+    }
+
+    private function create() {
+        $like = Like::create([
+            "like"         => $this->like,
+            "post_id"      => $this->post_id,
+            "user_id"      => $this->user_id
+        ]);
+
+        return $like;
+    }
+
+    private function update() {
+        $like = Like::where(['id' => $this->id, 'post_id' => $this->post_id, 'user_id' => $this->user_id])->update([
+            'like' => $this->like
         ]);
 
         return $like;
