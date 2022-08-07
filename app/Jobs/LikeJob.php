@@ -32,10 +32,12 @@ class LikeJob implements ShouldQueue
      */
     public function handle()
     {
-        Post::where(["user_id" => auth()->user()->id, "id" => $this->request->post_id])->like()->create([
+        $like = Post::where(["user_id" => auth()->user()->id, "id" => $this->request->post_id])->like()->create([
             "like"         => $this->request->like,
             "post_id"      => $this->request->post_id,
             "user_id"      => auth()->user()->id
         ]);
+
+        return $like;
     }
 }

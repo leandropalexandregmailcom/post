@@ -81,13 +81,14 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
-        Post::create([
+        $post = Post::create([
             "description" => $request->description
         ]);
 
         return response()->json([
             "status"    => 200,
-            "message"   => "created"
+            "message"   => "created",
+            "data"      => $post
         ]);
     }
 
@@ -197,7 +198,7 @@ class PostController extends Controller
 
         return response()->json([
             "status"    => 200,
-            "message"   => "updated"
+            "message"   => "updated",
         ]);
     }
 

@@ -74,7 +74,7 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request)
     {
-        Comment::create([
+        $comment = Comment::create([
             "description"  => $request->description,
             "post_id"      => $request->post_id,
             "user_id"      => auth()->user()->id
@@ -82,7 +82,8 @@ class CommentController extends Controller
 
         return response()->json([
             "status"    => 200,
-            "message"   => "created"
+            "message"   => "created",
+            "data"      => $comment
         ]);
     }
 
@@ -199,14 +200,17 @@ class CommentController extends Controller
      */
     public function update(UpdateCommentRequest $request)
     {
-        Comment::where(['user_id' => auth()->user()->id, 'post_id' => $request->post_id, 'id' => $request->id])
-            ->update([
+        $comment = Comment::where([
+                'user_id' => auth()->user()->id,
+                'post_id' => $request->post_id,
+                'id' => $request->id
+            ])->update([
                 "description"  => $request->description,
             ]);
 
         return response()->json([
             "status"    => 200,
-            "message"   => "updated"
+            "message"   => "updated",
         ]);
     }
 

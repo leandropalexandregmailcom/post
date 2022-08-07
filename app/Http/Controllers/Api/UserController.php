@@ -94,7 +94,7 @@ class UserController extends Controller
      */
     public function store(CreateUserRequest $request)
     {
-        User::create([
+        $user = User::create([
                 "name"      => $request->name,
                 "email"     => $request->email,
                 "password"  => Hash::make($request->password),
@@ -102,7 +102,8 @@ class UserController extends Controller
 
         return response()->json([
             "status"    => 200,
-            "message"   => "created"
+            "message"   => "created",
+            "data"      => $user
         ]);
     }
 
