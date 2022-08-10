@@ -2,22 +2,32 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Like;
-use App\Models\Post;
-use App\Models\Comment;
+use App\Classe\Comment;
 use App\Jobs\CommentJob;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
-use Illuminate\Support\Facades\Auth;
+use App\InterfacesClass\CommentInterface;
+use Exception;
 
-class CommentController extends Controller
+
+
+Class CommentController extends Controller
 {
+    public Comment $Comment;
 
     public function index()
     {
-        return response()->json(Comment::where(["user_id" => auth()->user()->id])->get());
+        try{
+            $this->Comment = new Comment;
+
+            $comment = CommentJob::dispatch($this->Comment, 'getAll');
+            //dd('r');
+        }  catch (Exception $e) {
+            throw new Exception("Erro ao executar função da controller: $e->getMessage()");
+        }
+        return response()->json($comment);
     }
 
     /**
@@ -74,11 +84,16 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request)
     {
-        $comment = CommentJob::dispatch($request->description,
-            intval($request->post_id),
-            intval(auth()->user()->id),
-            'create'
-        );
+        $this->Comment = new Comment;
+        $this->Comment->description = $request->description;
+        $this->Comment->post_id = $request->post_id;
+        $this->Comment->user_id = auth()->user()->id;
+
+        try{
+            $comment = CommentJob::dispatch($this->Comment, 'create');
+        }  catch (Exception $e) {
+            throw new Exception("Erro ao executar função da controller: $e->getMessage()");
+        }
 
         return response()->json([
             "status"    => 200,
@@ -129,12 +144,12 @@ class CommentController extends Controller
      */
     public function show(Request $request)
     {
-        return response()
-            ->json(Comment::where([
-                    'user_id' => auth()->user()->id,
-                    'post_id' => $request->post_id,
-                    'id'      => $request->id])
-            ->first());
+        // return response()
+        //     ->json(Comment::where([
+        //             'user_id' => auth()->user()->id,
+        //             'post_id' => $request->post_id,
+        //             'id'      => $request->id])
+        //     ->first());
     }
 
     /**
@@ -200,16 +215,21 @@ class CommentController extends Controller
      */
     public function update(UpdateCommentRequest $request)
     {
-        CommentJob::dispatch(
-            $request->description,
-            intval($request->post_id),
-            intval(auth()->user()->id),
-            'update'
-        );
+        $this->Comment->description = $request->description;
+        $this->Comment->post_id = $request->post_id;
+        $this->Comment->user_id = auth()->user()->id;
+        $this->Comment->id = $request->id;
+
+        try{
+            $comment = CommentJob::dispatch($this->Comment, 'update');
+        }  catch (Exception $e) {
+            throw new Exception("Erro ao executar função da controller: $e->getMessage()");
+        }
 
         return response()->json([
             "status"    => 200,
             "message"   => "updated",
+            "data"      => $request->$comment
         ]);
     }
 
@@ -259,15 +279,15 @@ class CommentController extends Controller
      */
     public function destroy(Request $request)
     {
-        Comment::where([
-            'user_id' => auth()->user()->id,
-            'post_id' => $request->post_id,
-            'id' => $request->id])
-            ->delete();
+        // Comment::where([
+        //     'user_id' => auth()->user()->id,
+        //     'post_id' => $request->post_id,
+        //     'id' => $request->id])
+        //     ->delete();
 
-            return response()->json([
-                "status"    => 200,
-                "message"   => "deleted"
-            ]);
+        //     return response()->json([
+        //         "status"    => 200,
+        //         "message"   => "deleted"
+        //     ]);
     }
 }

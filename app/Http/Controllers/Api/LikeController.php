@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Classe\Like as ClasseLike;
+use Exception;
 use App\Models\Like;
-use App\Models\Post;
 use App\Jobs\LikeJob;
-use App\Models\Comment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLikeRequest;
 use App\Http\Requests\UpdateLikeRequest;
-use Illuminate\Support\Facades\Auth;
 
 class LikeController extends Controller
 {
@@ -73,12 +72,16 @@ class LikeController extends Controller
      */
     public function store(StoreLikeRequest $request)
     {
-        $like = LikeJob::dispatch(
-            $request->like,
-            intval($request->post_id),
-            intval(auth()->user()->id),
-            'create'
-        );
+        $LikeClass = new ClasseLike;
+        $LikeClass->like = $request->like;
+        $LikeClass->post_id = $request->post_id;
+        $LikeClass->user_id = auth()->user()->id;
+
+        try{
+            $like = LikeJob::dispatch($LikeClass, 'create');
+        }  catch (Exception $e) {
+            throw new Exception("Erro ao executar função da controller: $e->getMessage()");
+        }
 
         return response()->json([
             "status"    => 200,
@@ -200,16 +203,22 @@ class LikeController extends Controller
      */
     public function update(UpdateLikeRequest $request)
     {
-        LikeJob::dispatch(
-            $request->like,
-            intval($request->post_id),
-            intval(auth()->user()->id),
-            'update'
-        );
+        $LikeClass = new ClasseLike;
+        $LikeClass->description = $request->description;
+        $LikeClass->post_id = $request->post_id;
+        $LikeClass->user_id = auth()->user()->id;
+        $LikeClass->id = $request->id;
+
+        try{
+            $like = LikeJob::dispatch($LikeClass, 'update');
+        }  catch (Exception $e) {
+            throw new Exception("Erro ao executar função da controller: $e->getMessage()");
+        }
 
         return response()->json([
             "status"    => 200,
             "message"   => "updated",
+            "data"      => $like
         ]);
     }
 

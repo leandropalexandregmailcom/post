@@ -2,8 +2,11 @@
 
 namespace App\Jobs;
 
+use Exception;
+use App\Dao\CommentDao;
 use App\Models\Comment;
 use Illuminate\Bus\Queueable;
+use App\Classe\Comment as ClassComment;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,43 +16,27 @@ class CommentJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private string $description;
-    private int $post_id;
-    private int $user_id;
+    private ClassComment $comment;
+    private CommentDao $commentDao;
     private string $action;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(string $description, int $post_id, int $user_id, string $action)
+
+    public function __construct(ClassComment $comment, string $action)
     {
-        $this->description = $description;
-        $this->post_id = $post_id;
-        $this->user_id = $user_id;
+        $this->comment = $comment;
         $this->action = $action;
     }
 
     public function handle()
     {
-        return $this->action == "create" ? $this->create() : $this->update();
-    }
-
-    private function create() {
-        $comment = Comment::create([
-            "description"  => $this->description,
-            "post_id"      => $this->post_id,
-            "user_id"      => $this->user_id
-        ]);
-
-        return $comment;
-    }
-
-    private function update() {
-        $comment = Comment::where(['id' => $this->id, 'post_id' => $this->post_id, 'user_id' => $this->user_id])->update([
-            'description' => $this->description
-        ]);
-
-        return $comment;
+        $commentDao = new CommentDao;
+        if(!method_exists($commentDao, $this->action)) {
+            throw new Exception("O método {$this->action} não existe em: {$commentDao}");
+        }
+        return $commentDao->{$this->action}($this->comment);
     }
 }

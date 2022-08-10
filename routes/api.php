@@ -25,9 +25,15 @@ use App\Http\Controllers\Api\CommentController;
 // });
 
 //free api
-Route::post('/login', [AuthController::class, 'login']);
+Route::get('/login', [AuthController::class, 'login']);
 Route::apiResource('user', UserController::class);
+Route::apiResource('post', PostController::class);
 
+//Comment
+Route::apiResource('comment', CommentController::class);
+
+//Like
+Route::apiResource('like', LikeController::class);
 //jwt auth
 Route::group(['middleware' => 'api'], function () {
 
